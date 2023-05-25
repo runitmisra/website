@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Building a Go CI pipeline in an offline environment :: Runit Misra</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="In today&amp;rsquo;s interconnected world, the majority of software development and deployment processes heavily rely on internet connectivity. However, certain organizations dealing with highly sensitive data cannot afford to expose their infrastructure to the internet or must tightly control internet access. This is where Offline environments, also known as Airgapped environments, come into play. Offline environments refer to infrastructure with limited or no connectivity to the open internet. While they offer enhanced security and independence from internet availability, they pose unique challenges for building CI (Continuous Integration) pipelines, especially when it comes to managing third-party dependencies." />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="http://example.org/posts/gocioffline/" />
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="http://example.org/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="http://example.org/img/theme-colors/blue.png">
+  <link rel="apple-touch-icon" href="http://example.org/img/theme-colors/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Building a Go CI pipeline in an offline environment">
+<meta property="og:description" content="In today&amp;rsquo;s interconnected world, the majority of software development and deployment processes heavily rely on internet connectivity. However, certain organizations dealing with highly sensitive data cannot afford to expose their infrastructure to the internet or must tightly control internet access. This is where Offline environments, also known as Airgapped environments, come into play. Offline environments refer to infrastructure with limited or no connectivity to the open internet. While they offer enhanced security and independence from internet availability, they pose unique challenges for building CI (Continuous Integration) pipelines, especially when it comes to managing third-party dependencies." />
+<meta property="og:url" content="http://example.org/posts/gocioffline/" />
+<meta property="og:site_name" content="Runit Misra" />
+
+  
+  
+  <meta property="og:image" content="http://example.org/cover.jpg">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2023-05-25 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="blue">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Runit Misra
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/posts">Posts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+        
+          <li><a href="/posts" >Posts</a></li>
+        
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="http://example.org/posts/gocioffline/">Building a Go CI pipeline in an offline environment</a>
+  </h1>
+  <div class="post-meta">
+    
+      <time class="post-date">
+        2023-05-25 ::
+        
+      </time>
+    
+    
+      <span class="post-author">Runit Misra</span>
+    
+    
+  </div>
+
+  
+  
+  <img src="http://example.org/cover.jpg"
+    class="post-cover"
+    alt="Building a Go CI pipeline in an offline environment"
+    title="Cover Image" />
+
+
+  
+
+  <div class="post-content"><div>
+        <p>In today&rsquo;s interconnected world, the majority of software development and deployment processes heavily rely on internet connectivity. However, certain organizations dealing with highly sensitive data cannot afford to expose their infrastructure to the internet or must tightly control internet access. This is where Offline environments, also known as Airgapped environments, come into play. Offline environments refer to infrastructure with limited or no connectivity to the open internet. While they offer enhanced security and independence from internet availability, they pose unique challenges for building CI (Continuous Integration) pipelines, especially when it comes to managing third-party dependencies. In this blog post, I will share my experiences and insights on overcoming this challenge, exploring various solutions tailored to specific situations.</p>
+<p>The task at hand is straightforward: construct a CI pipeline that retrieves the latest code from the application&rsquo;s repository, executes unit tests, and creates a Docker image for the application. However, building such a pipeline becomes challenging in an offline environment where accessing dependencies from external sources like GitHub or Go&rsquo;s package registry is not feasible. These dependencies are required both during test runs and application builds. In the following sections, we will explore effective solutions to tackle this issue and ensure a successful CI pipeline in an offline environment.</p>
+<h2 id="use-a-private-registry">Use a private registry<a href="#use-a-private-registry" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>This is by far the best solution and the one that almost anyone faced with this situation will opt for. Artifact repositories make life very simple for engineers looking for fine-grained control over their software supply chain, simplifying the management of organization-generated artifacts and enabling controlled retrieval of artifacts from the internet, ensuring they meet necessary security requirements.</p>
+<p>There are some excellent choices out there like JFrog&rsquo;s Artifactory or Sonartype&rsquo;s Nexus repository. You can use them as proxy to pull any required package from a list of verified sources which would be controlled by you. You can also upload packages manually to these repositories after through security scans and policy checks to make sure each package meets the security standards you have set. Once set up, private registries can be useful for multiple teams across the organization to store artifacts, track their versions and securely access them in an offline environment.</p>
+<p>More information available here:</p>
+<p><strong>Artifactory:</strong> <a href="https://jfrog.com/help/r/jfrog-artifactory-documentation/go-registry">https://jfrog.com/help/r/jfrog-artifactory-documentation/go-registry</a></p>
+<p><strong>Nexus:</strong> <a href="https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/go-repositories">https://help.sonatype.com/repomanager3/nexus-repository-administration/formats/go-repositories</a></p>
+<h2 id="use-go-vendoring">Use go vendoring<a href="#use-go-vendoring" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>This might seem like a hack because it probably is. Vendoring, if you aren&rsquo;t familiar, enables you to commit the dependencies next to the code. Vendoring is used to maintain the deterministic nature of go builds in an event a package your application depends on might get deleted/moved/broken later down the line.</p>
+<p>However, this works out great for us because when vendoring is enabled, go uses the packages it downloaded in the <code>vendor</code> directory to satisfy the application dependencies. This download can be done on a machine with internet access like the developer&rsquo;s PC using the <code>go mod vendor</code> command. Once the <code>vendor</code> directory is created, it can be committed alongside the code. The CI pipeline can then pull the dependencies directly from the <code>vendor</code> directory because it is part of the code repository and hence there is no need for connecting to the internet.</p>
+<p>Now that vendoring is set up, use <code>-mod=vendor</code> argument in all the build commands in the CI pipeline. For example:</p>
+<ul>
+<li>To test use <code>go test -mod=vendor ./...</code></li>
+<li>To build use <code>go build -mod=vendor cmd/main.go</code></li>
+</ul>
+<h2 id="use-a-base-image">Use a base image<a href="#use-a-base-image" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Here, by &ldquo;Base image&rdquo; I mean a docker image you prepare beforehand that has the necessary dependencies already downloaded and baked into it. Here the <code>go mod download</code> command would come in handy. Just like vendoring, the dependencies can be downloaded from a machine with internet access but instead of maintaining the packages in the repository along side the code, the packages are downloaded in a docker image which is then used as the base for the final application docker image.</p>
+<p>Create the base image with a dockerfile looking something like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> golang:alpine</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> go mod download -x<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>You can tag this something like <code>custom-base:latest</code></p>
+<p>Then the application Dockerfile will look something like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> custom-base:latest AS builder</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> . /build<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> go build -o /build/myapp<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> alpine:latest</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --from<span style="color:#f92672">=</span>builder /build/myapp /app<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">CMD</span> [<span style="color:#e6db74">&#34;./app/myapp&#34;</span>]<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>To be honest, this is not the most optimal solution. The biggest overhead this will create for you is to re-build this image in case any dependency gets updated, added or removed. You could always automate this but it has to be done on a machine with internet access and you&rsquo;d have to spend time writing logic when better alternatives are available.</p>
+<h2 id="conclusion">Conclusion<a href="#conclusion" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Not being able to rely on the convenience of having internet connectivity can be a little frustrating in day-to-day operations. But convenience sometimes comes with a cost - in our case it is fine grained control over access to internet to maintain security and privacy standards. However, these methods can hopefully help you in overcoming the challenge of CI in offline environments.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="http://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
