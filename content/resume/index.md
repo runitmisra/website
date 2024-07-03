@@ -3,8 +3,7 @@ title = "Resume"
 +++
 
 # Professional Summary
-
-Cloud Native enthusiast working as a Site Reliability Engineer making complex systems observable, reliable and scalable. 4 years of experience in cloud infrastructure, containerized applications, Kubernetes and Infrastructure as Code. Problem solver, lifetime learner and excellent communicator, committed to delivering efficient and high-quality software solutions.
+Cloud Native enthusiast with 5 years of experience as a Site Reliability Engineer, specializing in observability, reliability, and scalability of complex systems. Certified Kubernetes Administrator skilled in developing robust cloud infrastructure, orchestrating application deployments on Kubernetes, and implementing Infrastructure as Code (IaC). Proficient in automation, monitoring, and continuous integration/continuous deployment (CI/CD) pipelines. Highly motivated engineer with strong problem-solving and communication skills and experience in learning and growing in a fast-paced environment.
 
 # Skills
 
